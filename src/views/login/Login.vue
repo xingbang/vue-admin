@@ -46,7 +46,7 @@ export default {
     }
   },
   methods: {
-    // 登入
+    // 登入two
     login () {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
