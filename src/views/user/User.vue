@@ -36,6 +36,7 @@
 
     <el-dialog :title="dialogStatus" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px">
+        <el-input name="userid" type="hidden" v-model="temp.user_id"></el-input>
         <el-form-item label="用户名" prop="username">
           <el-input name="username" type="text" v-model="temp.user_name" placeholder="username"></el-input>
         </el-form-item>
@@ -58,6 +59,8 @@
   </div>
 </template>
 <script>
+import { updateUser } from '@/api/login'
+
 export default {
   data () {
     return {
@@ -101,7 +104,37 @@ export default {
     },
     // update 确认
     updateData () {
-
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          const tempData = Object.assign({}, this.temp)
+          updateUser(tempData).then((res) => {
+            if (res.data.code === 200) {
+              for (const v of this.list) {
+                if (v.user_id === this.temp.user_id) {
+                  const index = this.list.indexOf(v)
+                  this.list.splice(index, 1, this.temp)
+                  break
+                }
+              }
+              this.dialogFormVisible = false
+              this.$notify({
+                title: '成功',
+                message: '更新成功',
+                type: 'success',
+                duration: 2000
+              })
+            } else {
+              this.dialogFormVisible = false
+              this.$notify({
+                title: '失败',
+                message: res.data.msg,
+                type: 'error',
+                duration: 2000
+              })
+            }
+          })
+        }
+      })
     }
   }
 }

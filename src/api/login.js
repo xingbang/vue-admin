@@ -18,3 +18,11 @@ export function getUserInfo () {
     method: 'get'
   })
 }
+
+export function updateUser (data) {
+  return request({
+    url: 'http://localhost:3000/users/update',
+    method: 'post',
+    data
+  })
+}
