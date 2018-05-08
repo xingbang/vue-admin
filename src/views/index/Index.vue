@@ -1,5 +1,5 @@
 <template>
-  <div class="app-wrapper">
+  <div class="app-wrapper" style="width:auto;padding:30px;background-color: #f0f2f5;">
     <el-row :gutter="30">
       <el-col :xs="24" :sm="12" :md="6">
         <div class="index-panel">

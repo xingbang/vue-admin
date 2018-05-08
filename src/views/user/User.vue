@@ -1,11 +1,11 @@
 <template>
-  <div class="user-container">
+  <div class="user-container" style="padding:30px;background-color: #fff;">
+    <div class="filter-container">
+      <el-input style="width: 200px;" class="filter-item" placeholder="请输入要查询的用户名"></el-input>
+      <el-button class="filter-item" type="primary" icon="el-icon-search">查询</el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">新增</el-button>
+    </div>
     <el-table :data="list" v-loading="listLoading" element-loading-text="给我一点点时间" border fit style="width:100%;">
-      <el-table-column align="center" label="序号" width="65">
-        <template slot-scope="scope">
-          <span>{{scope.row.user_id}}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="用户名" min-width="150px">
         <template slot-scope="scope">
           <span>{{scope.row.user_name}}</span>
@@ -29,7 +29,7 @@
       <el-table-column align="center" label="操作" min-width="200px">
         <template slot-scope="scope">
           <el-button type="success" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
-          <el-button type="primary" size="mini">删除</el-button>
+          <el-button type="primary" size="mini" @click="deleteData(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -37,29 +37,29 @@
     <el-dialog :title="dialogStatus" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px">
         <el-input name="userid" type="hidden" v-model="temp.user_id"></el-input>
-        <el-form-item label="用户名" prop="username">
-          <el-input name="username" type="text" v-model="temp.user_name" placeholder="username"></el-input>
+        <el-form-item label="用户名" prop="user_name">
+          <el-input name="user_name" type="text" v-model="temp.user_name" placeholder="username"></el-input>
         </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input name="password" type="text" v-model="temp.user_password" placeholder="password"></el-input>
+        <el-form-item label="密码" prop="user_password">
+          <el-input name="user_password" type="text" v-model="temp.user_password" placeholder="password"></el-input>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input name="email" type="text" v-model="temp.user_email" placeholder="email"></el-input>
+        <el-form-item label="邮箱" prop="user_email">
+          <el-input name="user_email" type="text" v-model="temp.user_email" placeholder="email"></el-input>
         </el-form-item>
-        <el-form-item label="地址" prop="address">
-          <el-input name="address" type="text" v-model="temp.user_address" placeholder="address"></el-input>
+        <el-form-item label="地址" prop="user_address">
+          <el-input name="user_address" type="text" v-model="temp.user_address" placeholder="address"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button v-if="dialogStatus=='新增'" type="primary">新增</el-button>
+        <el-button v-if="dialogStatus=='新增'" type="primary" @click="createData">新增</el-button>
         <el-button v-else type="primary" @click="updateData">更新</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 <script>
-import { updateUser } from '@/api/login'
+import { updateUser, addUser, deleteUser } from '@/api/login'
 
 export default {
   data () {
@@ -68,6 +68,7 @@ export default {
       dialogFormVisible: false,
       dialogStatus: '',
       temp: {
+        user_id: '',
         user_name: '',
         user_password: '',
         user_email: '',
@@ -75,7 +76,7 @@ export default {
       },
       rules: {
         user_name: [{ required: true, message: '用户名不能为空', trigger: 'blur' }],
-        user_password: [{ required: true, message: '用户密码不能为空', trigger: 'blur' }],
+        user_password: [{ required: true, message: '密码不能为空', trigger: 'blur' }],
         user_email: [{ required: true, message: '邮箱不能为空', trigger: 'blur' }],
         user_address: [{ required: true, message: '地址不能为空', trigger: 'blur' }]
       }
@@ -93,6 +94,42 @@ export default {
         this.list = response.data.result
       })
     },
+    // 重置弹窗内容
+    resetTemp () {
+      this.temp = {
+        user_id: '',
+        user_name: '',
+        user_password: '',
+        user_email: '',
+        user_address: ''
+      }
+    },
+    // add 弹窗
+    handleCreate () {
+      this.resetTemp()
+      this.dialogStatus = '新增'
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    // add 确认
+    createData () {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          const tempData = Object.assign({}, this.temp)
+          addUser(tempData).then((res) => {
+            this.pubGetList(res)
+          })
+        }
+      })
+    },
+    // deleteData
+    deleteData (list) {
+      deleteUser(list).then((res) => {
+        this.pubGetList(res)
+      })
+    },
     // update 弹窗
     handleUpdate (list) {
       this.temp = Object.assign({}, list) // copy obj
@@ -108,34 +145,37 @@ export default {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
           updateUser(tempData).then((res) => {
-            if (res.data.code === 200) {
-              for (const v of this.list) {
-                if (v.user_id === this.temp.user_id) {
-                  const index = this.list.indexOf(v)
-                  this.list.splice(index, 1, this.temp)
-                  break
-                }
-              }
-              this.dialogFormVisible = false
-              this.$notify({
-                title: '成功',
-                message: '更新成功',
-                type: 'success',
-                duration: 2000
-              })
-            } else {
-              this.dialogFormVisible = false
-              this.$notify({
-                title: '失败',
-                message: res.data.msg,
-                type: 'error',
-                duration: 2000
-              })
-            }
+            this.pubGetList(res)
           })
         }
       })
+    },
+    // 公用
+    pubGetList (res) {
+      if (res.data.code === 200) {
+        this.getList()
+        this.dialogFormVisible = false
+        this.$notify({
+          title: '成功',
+          message: res.data.msg,
+          type: 'success',
+          duration: 2000
+        })
+      } else {
+        this.dialogFormVisible = false
+        this.$notify({
+          title: '失败',
+          message: res.data.msg,
+          type: 'error',
+          duration: 2000
+        })
+      }
     }
   }
 }
 </script>
+<style rel="stylesheet/scss" lang="scss">
+.filter-container{
+  padding:0 0 20px 0;
+}
+</style>
