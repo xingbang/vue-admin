@@ -1,8 +1,8 @@
 <template>
   <div class="user-container" style="padding:30px;background-color: #fff;">
     <div class="filter-container">
-      <el-input style="width: 200px;" class="filter-item" placeholder="请输入要查询的用户名"></el-input>
-      <el-button class="filter-item" type="primary" icon="el-icon-search">查询</el-button>
+      <el-input style="width: 320px;" class="filter-item" v-model="listQuery.user_name" @keyup.enter.native="handleFilter" placeholder="请输入要查询的用户名"></el-input>
+      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查询</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">新增</el-button>
     </div>
     <el-table :data="list" v-loading="listLoading" element-loading-text="给我一点点时间" border fit style="width:100%;">
@@ -34,6 +34,11 @@
       </el-table-column>
     </el-table>
 
+    <div class="pagination-container">
+      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[5,10,20,30, 50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
+      </el-pagination>
+    </div>
+
     <el-dialog :title="dialogStatus" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px">
         <el-input name="userid" type="hidden" v-model="temp.user_id"></el-input>
@@ -59,20 +64,25 @@
   </div>
 </template>
 <script>
-import { updateUser, addUser, deleteUser } from '@/api/login'
-
+import { getUserName, updateUser, addUser, deleteUser } from '@/api/login'
 export default {
   data () {
     return {
       list: null,
       dialogFormVisible: false,
       dialogStatus: '',
+      total: null,
       temp: {
         user_id: '',
         user_name: '',
         user_password: '',
         user_email: '',
         user_address: ''
+      },
+      listQuery: {
+        page: 1,
+        limit: 20,
+        user_name: undefined
       },
       rules: {
         user_name: [{ required: true, message: '用户名不能为空', trigger: 'blur' }],
@@ -89,10 +99,27 @@ export default {
     // 得到table列表数据
     getList () {
       this.listLoading = true
-      this.$store.dispatch('GetUserInfo').then(response => {
+      getUserName(this.listQuery).then(response => {
         this.listLoading = false
         this.list = response.data.result
+        this.total = response.data.count
       })
+    },
+    // 分页
+    handleSizeChange (val) {
+      console.log(val)
+      this.listQuery.limit = val
+      this.getList()
+    },
+    handleCurrentChange (val) {
+      console.log(val)
+      this.listQuery.page = val
+      this.getList()
+    },
+    // 查询
+    handleFilter () {
+      this.listQuery.page = 1
+      this.getList()
     },
     // 重置弹窗内容
     resetTemp () {
@@ -177,5 +204,13 @@ export default {
 <style rel="stylesheet/scss" lang="scss">
 .filter-container{
   padding:0 0 20px 0;
+  .filter-item {
+    display: inline-block;
+    vertical-align: middle;
+    margin-bottom: 10px;
+  }
+}
+.pagination-container{
+  padding:20px 0;
 }
 </style>

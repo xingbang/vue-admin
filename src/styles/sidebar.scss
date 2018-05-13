@@ -15,7 +15,7 @@
     bottom:0;
     right:0;
     left:0;
-    // z-index:10001;
+    z-index:9;
     background-color: rgb(48, 65, 86);
     a{
       display:inline-block;
@@ -38,6 +38,28 @@
     }
     .el-submenu__title,.el-tooltip{
       padding-left:5px!important;
+    }
+  }
+  //适配移动端
+  .mobile {
+    .main-container {
+      margin-left: 0px;
+    }
+    .sidebar-container {
+      transition: transform .28s;
+      width: 180px !important;
+    }
+    &.hideSidebar {
+      .sidebar-container {
+        transition-duration: 0.3s;
+        transform: translate3d(-180px, 0, 0);
+      }
+    }
+  }
+  .withoutAnimation {
+    .main-container,
+    .sidebar-container {
+      transition: none;
     }
   }
 }

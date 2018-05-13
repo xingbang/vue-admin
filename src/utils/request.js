@@ -5,8 +5,8 @@ import {getToken} from '@/utils/auth'
 
 // 创建一个自定义实例
 const service = axios.create({
-  baseUrl: process.env.BASE_API,
-  timeout: 6000
+  baseUrl: process.env.BASE_API
+  // timeout: 6000
 })
 
 // request拦截器 为每个响应头添加token

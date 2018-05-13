@@ -21,6 +21,15 @@ export function getUserInfo () {
   })
 }
 
+// query by name mo
+export function getUserName (data) {
+  return request({
+    url: 'http://localhost:3000/users/queryByNameMo',
+    method: 'post',
+    data
+  })
+}
+
 // update
 export function updateUser (data) {
   return request({

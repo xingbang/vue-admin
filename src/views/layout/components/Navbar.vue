@@ -1,6 +1,6 @@
 <template>
   <div class="navbar">
-    <hamburger class="hamburger-container" :toggleClick="toggleSidebar" :isActive="!sidebar.opened"></hamburger>
+    <hamburger class="hamburger-container" :toggleClick="toggleSidebar" :isActive="sidebar.opened"></hamburger>
     <breadcrumb class="hanburger-container"></breadcrumb>
       <el-dropdown>
         <span class="el-dropdown-link">
