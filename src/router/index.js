@@ -4,6 +4,7 @@ import Login from '@/views/login/Login'
 import Layout from '@/views/layout/Layout'
 import Index from '@/views/index/Index'
 import User from '@/views/user/User'
+import Photo from '@/views/photo/Photo'
 
 Vue.use(Router)
 
@@ -25,6 +26,12 @@ export default new Router({
           name: '用户',
           component: User,
           meta: {title: '用户'}
+        },
+        {
+          path: '/photo',
+          name: '图片汇总',
+          component: Photo,
+          meta: {title: '图片汇总'}
         }
       ]
     },

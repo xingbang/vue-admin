@@ -14,6 +14,14 @@
         <i class="el-icon-setting"></i>
         <span slot="title" >首页</span>
       </el-menu-item>
+      <el-submenu index="">
+        <template slot="title">
+          <i class="el-icon-location"></i>
+          <span>图片</span>
+        </template>
+        <el-menu-item index="/photo">图片汇总</el-menu-item>
+        <el-menu-item index="/picTag">图片标签</el-menu-item>
+      </el-submenu>
       <el-menu-item index="/user" key="user">
         <i class="el-icon-setting"></i>
         <span slot="title" >用户</span>
