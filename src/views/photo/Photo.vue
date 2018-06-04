@@ -94,7 +94,7 @@
   </div>
 </template>
 <script>
-import request from '@/utils/request'
+import axios from 'axios'
 
 export default {
   data () {
@@ -104,7 +104,7 @@ export default {
       imageUrl: '',
       token: {},
       // 七牛云的上传地址
-      domain: 'https://upload.qiniup.com',
+      domain: 'http://upload.qiniu.com/',
       qiniuaddr: 'p9siq5sgq.bkt.clouddn.com',
       temp: {
         pic_name: '',
@@ -129,17 +129,20 @@ export default {
         filetype = 'jpg'
       }
       // 重命名要上传的文件
-      const keyname = 'lytton' + new Date() + Math.floor(Math.random() * 100) + '.' + filetype
+      const keyname = 'xingimg' + ((new Date()).valueOf()) + Math.floor(Math.random() * 100) + '.' + filetype
       // 从后端获取上传凭证token
-      request({url: 'http://localhost:3000/photoUp', method: 'get'}).then((res) => {
+      axios({url: 'http://localhost:3000/photoUp', method: 'get'}).then((res) => {
         const formdata = new FormData()
         formdata.append('file', req.file)
         formdata.append('token', res.data)
         formdata.append('key', keyname)
         // 获取到凭证之后再将文件上传到七牛云空间
-        request({url: this.domain, method: 'post', formdata}).then((res) => {
-          debugger
-          this.imageUrl = 'https://' + this.qiniuaddr + '/' + res.data.key
+        axios.post(this.domain, formdata, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }).then((resUrl) => {
+          this.imageUrl = 'https://' + this.qiniuaddr + '/' + resUrl.data.key
           console.log(this.imageUrl)
         })
       })
