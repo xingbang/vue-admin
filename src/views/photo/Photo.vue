@@ -64,10 +64,10 @@
         <el-form-item label="图片上传:" prop="pic_url">
           <el-upload
             class="avatar-uploader"
-            action="https://jsonplaceholder.typicode.com/posts/"
+            :action= domain
             :show-file-list="false"
-            :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload">
+            :http-request = upqiniu
+            :before-upload="beforeUpload">
             <img v-if="imageUrl" :src="imageUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
@@ -94,12 +94,18 @@
   </div>
 </template>
 <script>
+import request from '@/utils/request'
+
 export default {
   data () {
     return {
       dialogFormVisible: true,
       dialogStatus: '',
       imageUrl: '',
+      token: {},
+      // 七牛云的上传地址
+      domain: 'https://upload.qiniup.com',
+      qiniuaddr: 'p9siq5sgq.bkt.clouddn.com',
       temp: {
         pic_name: '',
         pic_con: '',
@@ -113,11 +119,33 @@ export default {
     }
   },
   methods: {
-    handleAvatarSuccess (res, file) {
-      this.imageUrl = URL.createObjectURL(file.raw)
+    // 上传文件到七牛云
+    upqiniu (req) {
+      // console.log(req)
+      let filetype = ''
+      if (req.file.type === 'image/png') {
+        filetype = 'png'
+      } else {
+        filetype = 'jpg'
+      }
+      // 重命名要上传的文件
+      const keyname = 'lytton' + new Date() + Math.floor(Math.random() * 100) + '.' + filetype
+      // 从后端获取上传凭证token
+      request({url: 'http://localhost:3000/photoUp', method: 'get'}).then((res) => {
+        const formdata = new FormData()
+        formdata.append('file', req.file)
+        formdata.append('token', res.data)
+        formdata.append('key', keyname)
+        // 获取到凭证之后再将文件上传到七牛云空间
+        request({url: this.domain, method: 'post', formdata}).then((res) => {
+          debugger
+          this.imageUrl = 'https://' + this.qiniuaddr + '/' + res.data.key
+          console.log(this.imageUrl)
+        })
+      })
     },
-    beforeAvatarUpload (file) {
-      const isJPG = file.type === 'image/jpeg'
+    beforeUpload (file) {
+      const isJPG = file.type === 'image/jpeg' || file.type === 'image/png'
       const isLt2M = file.size / 1024 / 1024 < 2
 
       if (!isJPG) {
