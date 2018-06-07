@@ -202,14 +202,6 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss">
-.filter-container{
-  padding:0 0 20px 0;
-  .filter-item {
-    display: inline-block;
-    vertical-align: middle;
-    margin-bottom: 10px;
-  }
-}
 .pagination-container{
   padding:20px 0;
 }
