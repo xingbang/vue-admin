@@ -7,8 +7,9 @@
     </div>
     <el-row :gutter="5">
       <el-col :xs="24" :sm="12" :md="6" v-for="item in list" :key="item.pic_id">
-        <div class="ph-img" @click="handleUpdate(item)" :style="{background: 'url('+ item.pic_url +')',backgroundSize:'cover'}">
-          <!--<img :src="item.pic_url" />-->
+        <div class="ph-img" @click="handleUpdate(item)">
+          <!--:style="{background: 'url('+ item.pic_url +')',backgroundSize:'cover'}"-->
+          <img :src="item.pic_url" />
           <div class="ph-tit">
             <div class="ph-tit-1">{{item.pic_name}}</div>
             <div class="ph-tit-2">{{item.pic_con}}</div>
@@ -16,6 +17,11 @@
         </div>
       </el-col>
     </el-row>
+
+    <div class="pagination-container">
+      <el-pagination background @current-change="handleCurrentChange" :current-page="listQuery.page" :page-size="listQuery.limit" layout="total, prev, pager, next" :total="total">
+      </el-pagination>
+    </div>
 
     <el-dialog :title="dialogStatus" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" label-position="right" label-width="90px" :model="temp"  :rules="rules">
@@ -47,7 +53,7 @@
           <el-input-number name="pic_view" v-model="temp.pic_view" controls-position="right" :min="1"></el-input-number>
         </el-form-item>
         <el-form-item label="首页图片:" prop="pic_top">
-          <el-switch name="pic_top" v-model="temp.pic_top" active-value="1" inactive-value="0"></el-switch>
+          <el-switch name="pic_top" v-model="temp.pic_top" active-value="top" inactive-value="notop"></el-switch>
         </el-form-item>
         <el-form-item label="上传时间:" prop="pic_time">
           <el-date-picker type="date" name="pic_time" placeholder="选择时间" v-model="temp.pic_time" style="width:100%"></el-date-picker>
@@ -79,12 +85,13 @@ export default {
       dialogStatus: '',
       pic_url: '',
       token: {},
+      total: null,
       // 七牛云的上传地址
       domain: 'http://upload.qiniu.com/',
       qiniuaddr: 'p9siq5sgq.bkt.clouddn.com',
       listQuery: {
         page: 1,
-        limit: 20,
+        limit: 12,
         pic_name: undefined
       },
       temp: {
@@ -112,6 +119,7 @@ export default {
   methods: {
     // xx
     getList () {
+      debugger
       getPicName(this.listQuery).then(response => {
         this.list = response.data.result
         this.total = response.data.count
@@ -181,6 +189,11 @@ export default {
           })
         }
       })
+    },
+    handleCurrentChange (val) {
+      console.log(val)
+      this.listQuery.page = val
+      this.getList()
     },
     // 公用
     pubGetList (res) {
