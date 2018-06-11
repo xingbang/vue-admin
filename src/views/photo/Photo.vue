@@ -1,8 +1,8 @@
 <template>
   <div class="app-wrapper" style="width:auto;padding:10px;">
     <div class="filter-container">
-      <el-input style="width: 320px;" class="filter-item" placeholder="请输入要查询的图片名称"></el-input>
-      <el-button class="filter-item" type="primary" icon="el-icon-search" >查询</el-button>
+      <el-input style="width: 320px;" class="filter-item" v-model="listQuery.pic_name" @keyup.enter.native="handleFilter" placeholder="请输入要查询的图片名称"></el-input>
+      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter" >查询</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" @click="handleCreate" icon="el-icon-edit" >新增</el-button>
     </div>
     <el-row :gutter="5">
@@ -119,11 +119,15 @@ export default {
   methods: {
     // xx
     getList () {
-      debugger
       getPicName(this.listQuery).then(response => {
         this.list = response.data.result
         this.total = response.data.count
       })
+    },
+    // 查询
+    handleFilter () {
+      this.listQuery.page = 1
+      this.getList()
     },
     // 重置弹窗内容
     resetTemp () {

@@ -5,6 +5,7 @@ import Layout from '@/views/layout/Layout'
 import Index from '@/views/index/Index'
 import User from '@/views/user/User'
 import Photo from '@/views/photo/Photo'
+import PhotoTag from '@/views/phototag/PhotoTag'
 
 Vue.use(Router)
 
@@ -32,6 +33,12 @@ export default new Router({
           name: '图片汇总',
           component: Photo,
           meta: {title: '图片汇总'}
+        },
+        {
+          path: '/photoTag',
+          name: '图片TAG',
+          component: PhotoTag,
+          meta: {title: '图片TAG'}
         }
       ]
     },
